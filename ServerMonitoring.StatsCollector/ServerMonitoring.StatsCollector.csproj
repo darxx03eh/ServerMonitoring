@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-ServerMonitoring.StatsCollector-bf1aa54d-846b-42b2-942a-8a341e3dc308</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ServerMonitoring.MessageQueue\ServerMonitoring.MessageQueue.csproj" />
+    </ItemGroup>
+</Project>
