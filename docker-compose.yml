@@ -1,0 +1,71 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-express:
+    image: mongo-express:1-20-alpine3.19
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  stat-collector-linux1:
+    build:
+      context: .
+      dockerfile: ServerMonitoring.StatsCollector/Dockerfile
+    container_name: stat-collector-linux1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ServerStatisticsConfig__SamplingIntervalSeconds=10
+      - ServerStatisticsConfig__ServerIdentifier=linux1
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__ExchangeName=server.events
+
+  stat-collector-linux2:
+    build:
+      context: .
+      dockerfile: ServerMonitoring.StatsCollector/Dockerfile
+    container_name: stat-collector-linux2
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ServerStatisticsConfig__SamplingIntervalSeconds=10
+      - ServerStatisticsConfig__ServerIdentifier=linux2
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__ExchangeName=server.events
+
+volumes:
+  mongo-data:
