@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>dotnet-ServerMonitoring.StatsCollector-bf1aa54d-846b-42b2-942a-8a341e3dc308</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,5 +14,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ServerMonitoring.MessageQueue\ServerMonitoring.MessageQueue.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 </Project>
