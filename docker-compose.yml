@@ -11,6 +11,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   mongodb:
     image: mongo:7
@@ -66,6 +69,31 @@ services:
       - ServerStatisticsConfig__ServerIdentifier=linux2
       - RabbitMq__HostName=rabbitmq
       - RabbitMq__ExchangeName=server.events
+  
+  processor:
+    build:
+      context: .
+      dockerfile: ServerMonitoring.Processor/Dockerfile
+    container_name: processor
+    ports:
+      - "8080:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__ExchangeName=server.events
+      - RabbitMq__QueueName=processor-queue
+      - MongoConfig__ConnectionString=mongodb://mongodb:27017
+      - MongoConfig__DatabaseName=ServerMonitoring
+      - MongoConfig__CollectionName=ServerStatistics
+      - AnomalyDetectionConfig__MemoryUsageAnomalyThresholdPercentage=0.4
+      - AnomalyDetectionConfig__CpuUsageAnomalyThresholdPercentage=0.5
+      - AnomalyDetectionConfig__MemoryUsageThresholdPercentage=0.8
+      - AnomalyDetectionConfig__CpuUsageThresholdPercentage=0.9
 
 volumes:
   mongo-data:
+  rabbitmq_data:
