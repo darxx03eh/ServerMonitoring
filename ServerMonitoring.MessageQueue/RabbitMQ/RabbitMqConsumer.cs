@@ -7,14 +7,12 @@ using ServerMonitoring.MessageQueue.Options;
 
 namespace ServerMonitoring.MessageQueue.RabbitMQ;
 
-public class RabbitMqConsumer : IMessageConsumer
+public class RabbitMqConsumer(IOptions<RabbitMqOptions> options) : IMessageConsumer
 {
-    private readonly RabbitMqOptions _options;
+    private readonly RabbitMqOptions _options
+        = options.Value ?? throw new ArgumentNullException(nameof(options));
     private IConnection? _connection;
     private IChannel? _channel;
-
-    public RabbitMqConsumer(IOptions<RabbitMqOptions> options) =>
-        _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 
     public async Task SubscribeAsync<T>(string topicPattern, Func<T, string, CancellationToken, Task> handler,
         CancellationToken cancellationToken = default)
