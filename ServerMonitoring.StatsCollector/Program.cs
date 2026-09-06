@@ -1,5 +1,6 @@
 using ServerMonitoring.MessageQueue.DependencyInjection;
 using ServerMonitoring.StatsCollector.IProviders;
+using ServerMonitoring.StatsCollector.IProviders.Factory;
 using ServerMonitoring.StatsCollector.Options;
 using ServerMonitoring.StatsCollector.Providers;
 
@@ -17,7 +18,7 @@ public class Program
 
         builder.Services.AddRabbitMqMessaging(builder.Configuration);
 
-        builder.Services.AddSingleton<IServerStatisticsProvider, SystemDiagnosticsStatisticsProvider>();
+        builder.Services.AddSingleton<IServerStatisticsProvider>(_ => ServerStatisticsProviderFactory.Create());
         builder.Services.AddHostedService<StatisticsCollectionWorker>();
 
         var host = builder.Build();
