@@ -8,43 +8,31 @@ using ServerMonitoring.Processor.Options;
 
 namespace ServerMonitoring.Processor.Services;
 
-public class AnomalyDetectionService : BackgroundService
+public class AnomalyDetectionService(
+    IMessageConsumer consumer,
+    IServerStatisticsRepository repository,
+    IAlertNotifier alertNotifier,
+    IOptions<AnomalyDetectionOptions> options,
+    ILogger<AnomalyDetectionService> logger) : BackgroundService
 {
-    private readonly IMessageConsumer _consumer;
-    private readonly IServerStatisticsRepository _repository;
-    private readonly IAlertNotifier _alertNotifier;
-    private readonly AnomalyDetectionOptions _options;
-    private readonly ILogger<AnomalyDetectionService> _logger;
+    private readonly AnomalyDetectionOptions _options = options.Value;
     private readonly ConcurrentDictionary<string, ServerStatistics> _lastStatsByServer = new();
-
-    public AnomalyDetectionService(
-        IMessageConsumer consumer,
-        IServerStatisticsRepository repository,
-        IAlertNotifier alertNotifier,
-        IOptions<AnomalyDetectionOptions> options,
-        ILogger<AnomalyDetectionService> logger)
-    {
-        _consumer = consumer;
-        _repository = repository;
-        _alertNotifier = alertNotifier;
-        _options = options.Value;
-        _logger = logger;
-    }
+    
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _consumer.SubscribeAsync<ServerStatistics>(
+        await consumer.SubscribeAsync<ServerStatistics>(
             "ServerStatistics.*",
             (stats, routingKey, ct) => HandleStatisticsAsync(stats, ct),
             stoppingToken);
 
-        _logger.LogInformation("Subscribed to 'ServerStatistics.*'. Waiting for messages...");
+        logger.LogInformation("Subscribed to 'ServerStatistics.*'. Waiting for messages...");
         
         await Task.Delay(Timeout.Infinite, stoppingToken);
     }
     
     private async Task HandleStatisticsAsync(ServerStatistics stats, CancellationToken ct)
     {
-        await _repository.SaveAsync(stats, ct);
+        await repository.SaveAsync(stats, ct);
 
         if (_lastStatsByServer.TryGetValue(stats.ServerIdentifier, out var previous))
             await CheckAnomalyAsync(previous, stats, ct);
@@ -58,10 +46,10 @@ public class AnomalyDetectionService : BackgroundService
     {
         if (current.MemoryUsage > previous.MemoryUsage * (1 + _options.MemoryUsageAnomalyThresholdPercentage))
         {
-            _logger.LogWarning("Memory anomaly on {Server}: {Prev}MB -> {Curr}MB",
+            logger.LogWarning("Memory anomaly on {Server}: {Prev}MB -> {Curr}MB",
                 current.ServerIdentifier, previous.MemoryUsage, current.MemoryUsage);
 
-            await _alertNotifier.SendAlertAsync(new AlertMessage
+            await alertNotifier.SendAlertAsync(new AlertMessage
             {
                 AlertType = "AnomalyAlert",
                 ServerIdentifier = current.ServerIdentifier,
@@ -74,10 +62,10 @@ public class AnomalyDetectionService : BackgroundService
 
         if (current.CpuUsage > previous.CpuUsage * (1 + _options.CpuUsageAnomalyThresholdPercentage))
         {
-            _logger.LogWarning("CPU anomaly on {Server}: {Prev}% -> {Curr}%",
+            logger.LogWarning("CPU anomaly on {Server}: {Prev}% -> {Curr}%",
                 current.ServerIdentifier, previous.CpuUsage, current.CpuUsage);
 
-            await _alertNotifier.SendAlertAsync(new AlertMessage
+            await alertNotifier.SendAlertAsync(new AlertMessage
             {
                 AlertType = "AnomalyAlert",
                 ServerIdentifier = current.ServerIdentifier,
@@ -96,7 +84,7 @@ public class AnomalyDetectionService : BackgroundService
 
         if (memoryUsagePercentage > _options.MemoryUsageThresholdPercentage)
         {
-            await _alertNotifier.SendAlertAsync(new AlertMessage
+            await alertNotifier.SendAlertAsync(new AlertMessage
             {
                 AlertType = "HighUsageAlert",
                 ServerIdentifier = current.ServerIdentifier,
@@ -109,7 +97,7 @@ public class AnomalyDetectionService : BackgroundService
         double cpuThresholdPercent = _options.CpuUsageThresholdPercentage * 100;
         if (current.CpuUsage > cpuThresholdPercent)
         {
-            await _alertNotifier.SendAlertAsync(new AlertMessage
+            await alertNotifier.SendAlertAsync(new AlertMessage
             {
                 AlertType = "HighUsageAlert",
                 ServerIdentifier = current.ServerIdentifier,
