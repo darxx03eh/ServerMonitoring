@@ -6,15 +6,14 @@ using ServerMonitoring.MessageQueue.Options;
 
 namespace ServerMonitoring.MessageQueue.RabbitMQ;
 
-public class RabbitMqPublisher : IMessagePublisher
+public class RabbitMqPublisher(IOptions<RabbitMqOptions> options) : IMessagePublisher
 {
-    private readonly RabbitMqOptions _options;
+    private readonly RabbitMqOptions _options
+        = options.Value ?? throw new ArgumentNullException(nameof(options));
     private readonly SemaphoreSlim _initLock = new(1, 1);
     private IConnection? _connection;
     private IChannel? _channel;
-
-    public RabbitMqPublisher(IOptions<RabbitMqOptions> options) =>
-        _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+    
     public async Task PublishAsync<T>(string topic, T message, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(topic))
