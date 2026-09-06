@@ -7,17 +7,13 @@ using ServerMonitoring.EventConsumer.Models;
 
 namespace ServerMonitoring.EventConsumer.Services;
 
-public class SignalRListenerService : BackgroundService
+public class SignalRListenerService(
+    ILogger<SignalRListenerService> logger,
+    IOptions<SignalRConfig> options
+    ) : BackgroundService
 {
-    private readonly SignalRConfig _options;
-    private readonly ILogger<SignalRListenerService> _logger;
+    private readonly SignalRConfig _options = options.Value;
     private HubConnection? _connection;
-
-    public SignalRListenerService(IOptions<SignalRConfig> options, ILogger<SignalRListenerService> logger)
-    {
-        _options = options.Value;
-        _logger = logger;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -31,19 +27,19 @@ public class SignalRListenerService : BackgroundService
 
         _connection.Reconnecting += error =>
         {
-            _logger.LogWarning("Connection lost, attempting to reconnect... {Error}", error?.Message);
+            logger.LogWarning("Connection lost, attempting to reconnect... {Error}", error?.Message);
             return Task.CompletedTask;
         };
 
         _connection.Reconnected += connectionId =>
         {
-            _logger.LogInformation("Reconnected. ConnectionId: {Id}", connectionId);
+            logger.LogInformation("Reconnected. ConnectionId: {Id}", connectionId);
             return Task.CompletedTask;
         };
 
         _connection.Closed += error =>
         {
-            _logger.LogError(error, "Connection closed permanently.");
+            logger.LogError(error, "Connection closed permanently.");
             return Task.CompletedTask;
         };
 
@@ -59,12 +55,12 @@ public class SignalRListenerService : BackgroundService
             try
             {
                 await _connection!.StartAsync(stoppingToken);
-                _logger.LogInformation("Connected to SignalR hub at {Url}", _options.SignalRUrl);
+                logger.LogInformation("Connected to SignalR hub at {Url}", _options.SignalRUrl);
                 return;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning("Failed to connect ({Message}). Retrying in 5s...", ex.Message);
+                logger.LogWarning("Failed to connect ({Message}). Retrying in 5s...", ex.Message);
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
