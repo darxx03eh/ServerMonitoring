@@ -9,6 +9,7 @@ namespace ServerMonitoring.Processor.Repositories;
 public class MongoServerStatisticsRepository : IServerStatisticsRepository
 {
     private readonly IMongoCollection<ServerStatistics> _collection;
+
     public MongoServerStatisticsRepository(IOptions<MongoOptions> options)
     {
         var settings = options.Value;
@@ -17,6 +18,6 @@ public class MongoServerStatisticsRepository : IServerStatisticsRepository
         _collection = database.GetCollection<ServerStatistics>(settings.CollectionName);
     }
 
-    public async Task SaveAsync(ServerStatistics statistics, CancellationToken cancellationToken = default)
-        => await _collection.InsertOneAsync(statistics, cancellationToken: cancellationToken);
+    public Task SaveAsync(ServerStatistics serverStatistics, CancellationToken cancellationToken = default)
+        => _collection.InsertOneAsync(serverStatistics, options: null, cancellationToken);
 }
