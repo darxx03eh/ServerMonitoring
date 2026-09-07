@@ -31,6 +31,7 @@ public class WindowsServerStatisticsProvider : IServerStatisticsProvider, IDispo
             ServerIdentifier = serverIdentifier,
             CpuUsage = cpuUsage,
             AvailableMemory = availableMb,
+            MemoryUsage = usedMb,
             Timestamp = DateTime.UtcNow
         };
     }
