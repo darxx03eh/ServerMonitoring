@@ -4,13 +4,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.MessageQue
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.StatsCollector", "ServerMonitoring.StatsCollector\ServerMonitoring.StatsCollector.csproj", "{23957C13-39A8-4253-BB48-6E75ED23DF61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.EventConsumer", "ServerMonitoring.EventConsumer\ServerMonitoring.EventConsumer.csproj", "{B55319C2-3D8F-45C6-904B-5DA7A4401C5F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.SignalR", "ServerMonitoring.SignalR\ServerMonitoring.SignalR.csproj", "{3136EA50-0D36-4B54-AC09-47E06B60C8C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.NotificationService", "ServerMonitoring.NotificationService\ServerMonitoring.NotificationService.csproj", "{6BD514E0-B1FF-4794-B56A-8795EC77C189}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.Processor", "ServerMonitoring.Processor\ServerMonitoring.Processor.csproj", "{AAC47871-F268-499B-A681-FFC2B96ADCE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.EventConsumer", "ServerMonitoring.EventConsumer\ServerMonitoring.EventConsumer.csproj", "{6D02B27F-EFC7-42A4-9FBC-409DF2190944}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +26,6 @@ Global
 		{23957C13-39A8-4253-BB48-6E75ED23DF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23957C13-39A8-4253-BB48-6E75ED23DF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23957C13-39A8-4253-BB48-6E75ED23DF61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B55319C2-3D8F-45C6-904B-5DA7A4401C5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B55319C2-3D8F-45C6-904B-5DA7A4401C5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B55319C2-3D8F-45C6-904B-5DA7A4401C5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B55319C2-3D8F-45C6-904B-5DA7A4401C5F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3136EA50-0D36-4B54-AC09-47E06B60C8C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3136EA50-0D36-4B54-AC09-47E06B60C8C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3136EA50-0D36-4B54-AC09-47E06B60C8C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -42,5 +38,9 @@ Global
 		{AAC47871-F268-499B-A681-FFC2B96ADCE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAC47871-F268-499B-A681-FFC2B96ADCE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAC47871-F268-499B-A681-FFC2B96ADCE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D02B27F-EFC7-42A4-9FBC-409DF2190944}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D02B27F-EFC7-42A4-9FBC-409DF2190944}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D02B27F-EFC7-42A4-9FBC-409DF2190944}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D02B27F-EFC7-42A4-9FBC-409DF2190944}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -6,6 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ServerMonitoring.EventConsumer/ServerMonitoring.EventConsumer.csproj", "ServerMonitoring.EventConsumer/"]
+COPY ["ServerMonitoring.SignalR/ServerMonitoring.SignalR.csproj", "ServerMonitoring.SignalR/"]
 RUN dotnet restore "ServerMonitoring.EventConsumer/ServerMonitoring.EventConsumer.csproj"
 COPY . .
 WORKDIR "/src/ServerMonitoring.EventConsumer"
