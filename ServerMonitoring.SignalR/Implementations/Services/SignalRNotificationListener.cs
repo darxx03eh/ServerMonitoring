@@ -44,7 +44,8 @@ public class SignalRNotificationListener : INotificationListener
     public Task SubscribeAsync<T>(string @event, Func<T, CancellationToken, Task> handler,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _connection.On<T>(@event, payload => handler(payload, cancellationToken));
+        return  Task.CompletedTask;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
