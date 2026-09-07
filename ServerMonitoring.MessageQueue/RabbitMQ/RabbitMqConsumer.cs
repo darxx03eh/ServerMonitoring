@@ -42,6 +42,44 @@ public class RabbitMqConsumer(IOptions<RabbitMqOptions> options) : IMessageConsu
             autoDelete: false,
             cancellationToken: cancellationToken).ConfigureAwait(false);
         
+        // Dead-Letter setup
+        IDictionary<string, object?> queueArguments = null;
+        if (!string.IsNullOrWhiteSpace(_options.DeadLetterExchangeName))
+        {
+            await _channel.ExchangeDeclareAsync(
+                exchange: _options.DeadLetterExchangeName,
+                type: ExchangeType.Topic,
+                durable: true,
+                autoDelete: false,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            string dlqName = _options.DeadLetterQueueName
+                             ?? $"{(_options.QueueName) ?? "anonymous"}.dlq";
+
+            string dlqRoutingKey = _options.DeadLetterRoutingKey ?? "#";
+
+            await _channel.QueueDeclareAsync(
+                queue: dlqName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            await _channel.QueueBindAsync(
+                queue: dlqName,
+                exchange: _options.DeadLetterExchangeName,
+                routingKey: dlqRoutingKey,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            queueArguments = new Dictionary<string, object>()
+            {
+                ["x-dead-letter-exchange"] = _options.DeadLetterExchangeName
+            };
+
+            if (!string.IsNullOrWhiteSpace(_options.DeadLetterRoutingKey))
+                queueArguments["x-dead-letter-exchange"] = _options.DeadLetterRoutingKey;
+        }
+        
         await _channel.BasicQosAsync(
             prefetchSize: 0,
             prefetchCount: _options.PrefetchCount,
@@ -54,6 +92,7 @@ public class RabbitMqConsumer(IOptions<RabbitMqOptions> options) : IMessageConsu
             durable: !exclusive && _options.DurableQueue,
             exclusive: exclusive,
             autoDelete: exclusive,
+            arguments: queueArguments,
             cancellationToken: cancellationToken).ConfigureAwait(false);
         
         string queueName = declareResult.QueueName;
