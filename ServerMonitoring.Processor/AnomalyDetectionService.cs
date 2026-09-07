@@ -16,7 +16,7 @@ public class AnomalyDetectionService(
     ILogger<AnomalyDetectionService> logger) : BackgroundService
 {
     private readonly AnomalyDetectionOptions _options = options.Value;
-    private readonly ConcurrentDictionary<string, ServerStatistics> _lastStatsByServer;
+    private readonly ConcurrentDictionary<string, ServerStatistics> _lastStatsByServer = new();
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await consumer.SubscribeAsync<ServerStatistics>(
@@ -31,20 +31,36 @@ public class AnomalyDetectionService(
     
     private async Task HandleStatisticsAsync(ServerStatistics stats, CancellationToken ct)
     {
+        logger.LogInformation("Saving stats into MongoDB...");
+        
         await repository.SaveAsync(stats, ct);
+        
+        logger.LogInformation("Successfully saved stats into MongoDB.");
 
         if (_lastStatsByServer.TryGetValue(stats.ServerIdentifier, out var previous))
+        {
+            logger.LogInformation("Analyzing stats for potential anomalies on server: {ServerId}...", stats.ServerIdentifier);
+            
             await CheckAnomalyAsync(previous, stats, ct);
-
+            
+            logger.LogDebug("Anomaly check completed for server: {ServerId}.", stats.ServerIdentifier);
+        }
+        
+        logger.LogInformation("Checking for high resource usage on server: {ServerId}...", stats.ServerIdentifier);
+        
         await CheckHighUsageAsync(stats, ct);
 
         _lastStatsByServer[stats.ServerIdentifier] = stats;
+        
+        logger.LogDebug("Updated local cache with latest stats for server: {ServerId}.", stats.ServerIdentifier);
     }
     
     private async Task CheckAnomalyAsync(ServerStatistics previous, ServerStatistics current, CancellationToken ct)
     {
+        bool anomalyDetected = false;
         if (current.MemoryUsage > previous.MemoryUsage * (1 + _options.MemoryUsageAnomalyThresholdPercentage))
         {
+            anomalyDetected = true;
             logger.LogWarning("Memory anomaly on {Server}: {Prev}MB -> {Curr}MB",
                 current.ServerIdentifier, previous.MemoryUsage, current.MemoryUsage);
 
@@ -61,6 +77,7 @@ public class AnomalyDetectionService(
 
         if (current.CpuUsage > previous.CpuUsage * (1 + _options.CpuUsageAnomalyThresholdPercentage))
         {
+            anomalyDetected = true;
             logger.LogWarning("CPU anomaly on {Server}: {Prev}% -> {Curr}%",
                 current.ServerIdentifier, previous.CpuUsage, current.CpuUsage);
 
@@ -74,6 +91,8 @@ public class AnomalyDetectionService(
                 Timestamp = current.Timestamp
             }, ct);
         }
+        if (!anomalyDetected)
+            logger.LogInformation("No anomalies detected for server: {Server}", current.ServerIdentifier);
     }
     private async Task CheckHighUsageAsync(ServerStatistics current, CancellationToken ct)
     {
