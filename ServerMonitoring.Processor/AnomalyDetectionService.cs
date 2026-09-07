@@ -6,7 +6,7 @@ using ServerMonitoring.Processor.Interfaces.Repositories;
 using ServerMonitoring.Processor.Models;
 using ServerMonitoring.Processor.Options;
 
-namespace ServerMonitoring.Processor.Services;
+namespace ServerMonitoring.Processor;
 
 public class AnomalyDetectionService(
     IMessageConsumer consumer,
@@ -16,15 +16,14 @@ public class AnomalyDetectionService(
     ILogger<AnomalyDetectionService> logger) : BackgroundService
 {
     private readonly AnomalyDetectionOptions _options = options.Value;
-    private readonly ConcurrentDictionary<string, ServerStatistics> _lastStatsByServer = new();
-    
-    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+    private readonly ConcurrentDictionary<string, ServerStatistics> _lastStatsByServer;
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await consumer.SubscribeAsync<ServerStatistics>(
             "ServerStatistics.*",
             (stats, routingKey, ct) => HandleStatisticsAsync(stats, ct),
             stoppingToken);
-
+        
         logger.LogInformation("Subscribed to 'ServerStatistics.*'. Waiting for messages...");
         
         await Task.Delay(Timeout.Infinite, stoppingToken);
@@ -76,7 +75,6 @@ public class AnomalyDetectionService(
             }, ct);
         }
     }
-
     private async Task CheckHighUsageAsync(ServerStatistics current, CancellationToken ct)
     {
         double totalMemory = current.MemoryUsage + current.AvailableMemory;
@@ -93,7 +91,7 @@ public class AnomalyDetectionService(
                 Timestamp = current.Timestamp
             }, ct);
         }
-        
+
         double cpuThresholdPercent = _options.CpuUsageThresholdPercentage * 100;
         if (current.CpuUsage > cpuThresholdPercent)
         {

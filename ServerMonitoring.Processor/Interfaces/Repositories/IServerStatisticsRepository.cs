@@ -4,5 +4,5 @@ namespace ServerMonitoring.Processor.Interfaces.Repositories;
 
 public interface IServerStatisticsRepository
 {
-    Task SaveAsync(ServerStatistics statistics, CancellationToken cancellationToken = default);
+    Task SaveAsync(ServerStatistics serverStatistics, CancellationToken cancellationToken = default);
 }
