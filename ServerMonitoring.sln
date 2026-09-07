@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.EventConsu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.SignalR", "ServerMonitoring.SignalR\ServerMonitoring.SignalR.csproj", "{3136EA50-0D36-4B54-AC09-47E06B60C8C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoring.NotificationService", "ServerMonitoring.NotificationService\ServerMonitoring.NotificationService.csproj", "{6BD514E0-B1FF-4794-B56A-8795EC77C189}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{3136EA50-0D36-4B54-AC09-47E06B60C8C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3136EA50-0D36-4B54-AC09-47E06B60C8C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3136EA50-0D36-4B54-AC09-47E06B60C8C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BD514E0-B1FF-4794-B56A-8795EC77C189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BD514E0-B1FF-4794-B56A-8795EC77C189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BD514E0-B1FF-4794-B56A-8795EC77C189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BD514E0-B1FF-4794-B56A-8795EC77C189}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
