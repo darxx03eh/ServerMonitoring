@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using ServerMonitoring.StatsCollector.IProviders;
 using ServerMonitoring.StatsCollector.Models;
 
 namespace ServerMonitoring.StatsCollector.Providers;
 
+[SupportedOSPlatform("macOS")]
 public class MacOsServerStatisticsProvider : IServerStatisticsProvider
 {
     public ServerStatistics GetCurrentStatistics(string serverIdentifier)
